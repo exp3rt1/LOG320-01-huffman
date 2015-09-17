@@ -12,25 +12,25 @@ import java.util.Map;
 
 public class Compression {
     
-    public Character[] readFile(File file){
+    //TODO faire la tête du fichier compresser
+    
+    public ArrayList<Character> readFile(File file){
         try{
             InputStream inputstream = new FileInputStream(file);
-            Map<Integer, Character> map = new HashMap<Integer, Character>();
-            Character[] characterList;
+            ArrayList<Character> characterList = new ArrayList<Character>();
             int character = -2;
             character = inputstream.read();
             while(character != -1) {
-              if(map.containsKey(character)){
-                  map.get(character).setOccurence(map.get(character).getOccurence()+1);
+                int number = FindCharacter(characterList, character);
+              if(number != -1){
+                  characterList.get(number).setOccurence(characterList.get(number).getOccurence()+1);
               }
               else{
-                  map.put(character, new Character(character, 1));
+                  characterList.add(new Character(character, 1));
               }
               character = inputstream.read();
             }
-            
-            characterList = (Character[]) map.values().toArray();
-            quickSort(characterList, 0, characterList.length-1);
+            quickSort(characterList, 0, characterList.size()-1);
             
             return characterList;
         }
@@ -50,22 +50,22 @@ public class Compression {
     }
     
     // http://www.algolist.net/Algorithms/Sorting/Quicksort
-    int partition(Character arr[], int left, int right)
+    public int partition(ArrayList<Character> characterList, int left, int right)
     {
           int i = left, j = right;
           Character tmp;
           int pivotIndex = (left + right) / 2; 
-          int pivot = arr[pivotIndex].getOccurence();
+          int pivot = characterList.get(pivotIndex).getOccurence();
          
           while (i <= j) {
-                while (arr[i].getOccurence() < pivot)
+                while (characterList.get(i).getOccurence() < pivot)
                       i++;
-                while (arr[j].getOccurence() > pivot)
+                while (characterList.get(j).getOccurence() > pivot)
                       j--;
                 if (i <= j) {
-                      tmp = arr[i];
-                      arr[i] = arr[j];
-                      arr[j]= tmp;
+                      tmp = characterList.get(i);
+                      characterList.set(i, characterList.get(j));
+                      characterList.set(i, tmp);
                       i++;
                       j--;
                 }
@@ -74,12 +74,27 @@ public class Compression {
           return i;
     }
      
-    void quickSort(Character arr[], int left, int right) {
-          int index = partition(arr, left, right);
+    public void quickSort(ArrayList<Character> characterList, int left, int right) {
+          int index = partition(characterList, left, right);
           if (left < index - 1)
-                quickSort(arr, left, index - 1);
+                quickSort(characterList, left, index - 1);
           if (index < right)
-                quickSort(arr, index, right);
+                quickSort(characterList, index, right);
     }
     // end of reference
+    
+    public int FindCharacter(ArrayList<Character> characterList, int character){
+        for(int i=0; i != characterList.size()-1; ++i){
+            if(characterList.get(i).getCharacterNumber() == character)
+                return i;
+        }
+        return -1;
+    }
+    
+    public void ChangeToBinary(ArrayList<Character> characterList){
+        /*  regarder les charactères avec le plus petit nombre d'occurances
+         *  et les mettres ensembles dans un arbre, et additionner le nombre d'occurances
+         *  pour compléter l'arbre
+        */
+    }
 }
