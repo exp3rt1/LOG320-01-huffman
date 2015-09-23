@@ -9,6 +9,8 @@ public class Main
 
     public static void main(String[] args) 
     {
+    	Compression c = new Compression();
+    	Decompression d = new Decompression();
     	// Scanner scanner = new Scanner(System.in);
         // System.out.print("Compresser(c) ou Decompresser(d): ");
         // String option = scanner.next();
@@ -18,13 +20,13 @@ public class Main
        
         if(true)
         {
-        	date1 = System.currentTimeMillis();
-        	Compression.lireFichier(fichier);
-        	Compression.faireTrie();
-        	ArbreBinaire a = new ArbreBinaire();
-        	a.creationArbreBinaire(Compression.getTableFrequence());
-        	date2 = System.currentTimeMillis();
-        	System.out.print(date2 - date1);
+        	// date1 = System.currentTimeMillis();
+        	
+        	c.etapeCompression(fichier);
+        	
+        	
+        	// date2 = System.currentTimeMillis();
+        	// System.out.print(date2 - date1);
         }
         /*else
         {

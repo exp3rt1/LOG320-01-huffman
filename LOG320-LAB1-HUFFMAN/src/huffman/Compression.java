@@ -1,7 +1,9 @@
 package huffman;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,17 +15,13 @@ import java.util.Map.Entry;
 
 public class Compression 
 {
-	private static HashMap<Character, Noeud> map = new HashMap<Character, Noeud>();
-	private static ArrayList<Noeud> tableFrequence = new ArrayList<Noeud>();
-	// private static long date1, date2;
+	private  ArrayList<Noeud> tableFrequence = new ArrayList<Noeud>();
+	private ArbreBinaire arbre = new ArbreBinaire();
 	
-	public static void creationArbre()
+	public void lireFichier(String fichier)
 	{
+		HashMap<Character, Noeud> map = new HashMap<Character, Noeud>();
 		
-	}
-	
-	public static void lireFichier(String fichier)
-	{
 		try 
 		{
 			int c;
@@ -67,19 +65,19 @@ public class Compression
 	    }
 	}
 	
-	public static ArrayList<Noeud> getTableFrequence()
+	public ArrayList<Noeud> getTableFrequence()
 	{
 		return tableFrequence;
 	}
 	
 	/*************TRIE*************/
 	
-	public static void faireTrie()
+	public void faireTrie()
 	{
 		tri_rapide(tableFrequence, 0, tableFrequence.size()-1);
 	}
 	
-	public static void echangerValeur(ArrayList<Noeud> T, int val1, int val2)
+	public void echangerValeur(ArrayList<Noeud> T, int val1, int val2)
 	{		
 		Noeud temp = T.get(val1);
 		T.set(val1, T.get(val2));
@@ -87,45 +85,45 @@ public class Compression
 	}
 	
 	// http://laure.gonnord.org/pro/teaching/AlgoProg1112_IMA/trirapide.pdf
-	public static int partitionner(ArrayList<Noeud> T, int premier, int dernier)
+	public int partitionner(ArrayList<Noeud> T, int premier, int dernier)
 	{
-	    int j = dernier, i = premier+1, pivot = premier;
+	    int indice2 = dernier, indice1 = premier+1, pivot = premier;
 	    
-	    while(i<j)
+	    while(indice1 < indice2)
 	    {
-	    	if(T.get(i).getFrequence() <= T.get(pivot).getFrequence())
-	    		i++;
+	    	if(T.get(indice1).getFrequence() <= T.get(pivot).getFrequence())
+	    		indice1++;
 	    	else
 	    	{
-	    		if(T.get(j).getFrequence() >= T.get(pivot).getFrequence())
-	    			j--;
+	    		if(T.get(indice2).getFrequence() >= T.get(pivot).getFrequence())
+	    			indice2--;
 	    		else
 	    		{
-	    			echangerValeur(T, i, j);
-		        	i++;
-		            j--;
+	    			echangerValeur(T, indice1, indice2);
+	    			indice1++;
+	    			indice2--;
 	    		}
 	    	}
 	    }
 	    
-	    if(i == j)
+	    if(indice1 == indice2)
 	    {
-	    	if(T.get(i).getFrequence() <= T.get(pivot).getFrequence())
-	    		j++;
+	    	if(T.get(indice1).getFrequence() <= T.get(pivot).getFrequence())
+	    		indice2++;
 	    	else
-	    		i--;
+	    		indice1--;
 	    }
 	    else
 	    {
-	    	i--;
-	    	j++;
+	    	indice1--;
+	    	indice2++;
 	    }
 	    
-	    echangerValeur(T, premier, i);
-	    return i;
+	    echangerValeur(T, premier, indice1);
+	    return indice1;
 	}
 
-    public static void tri_rapide(ArrayList<Noeud> T, int premier, int dernier)
+    public void tri_rapide(ArrayList<Noeud> T, int premier, int dernier)
     {
     	int pivot;
     	
@@ -149,9 +147,25 @@ public class Compression
         
     }
     // Fin
-    
     /********************************/
     
-    
-
+    public void etapeCompression(String fichier)
+    {
+    	this.lireFichier(fichier);
+    	this.faireTrie();
+    	arbre.creationArbreBinaire(this.getTableFrequence());
+    	arbre.codeCaractere(new ArrayList<Byte>(), arbre.getTete(), 0);
+    	
+    	DataOutputStream dataOut = null;
+    	
+    	try 
+    	{
+			dataOut = new DataOutputStream(new FileOutputStream("file.txt"));
+			arbre.codeArbre(dataOut, arbre.getTete());
+		} 
+    	catch (FileNotFoundException e) 
+    	{
+			e.printStackTrace();
+		}
+    }
 }

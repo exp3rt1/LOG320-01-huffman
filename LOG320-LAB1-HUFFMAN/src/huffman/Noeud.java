@@ -1,11 +1,14 @@
 package huffman;
 
+import java.util.ArrayList;
+
 public class Noeud  
 {
 	private char caractere;
 	private int frequence = 1;
 	private Noeud gauche = null;
 	private Noeud droite = null;
+	private Byte[] code = null;
 	
 	public Noeud(char c)
 	{
@@ -15,9 +18,9 @@ public class Noeud
 	public boolean estFeuille()
 	{
 		if(this.gauche == null && this.droite == null)
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 
 	public char getCaractere() 
@@ -63,5 +66,15 @@ public class Noeud
 	public void setFrequenceParent()
 	{
 		this.frequence = this.getGauche().getFrequence() + this.getDroite().getFrequence();
+	}
+
+	public Byte[] getCode() 
+	{
+		return code;
+	}
+
+	public void setCode(Byte[] code) 
+	{
+		this.code = code;
 	}
 }
