@@ -4,8 +4,11 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.stream.Stream;
 
 public class ArbreBinaire 
 {
@@ -69,14 +72,17 @@ public class ArbreBinaire
 	{
 		if(!n.estFeuille())
 		{
-			System.out.print("codage");
+
+			int bits2 = 1000011;
+			BitSet b = new BitSet(bits2);
+			System.out.println(b);
 			// ecrire 0
 			// a gauche
 			// a droite
 			
 			try 
 			{
-			    dataOut.writeBytes("1000001");
+		        dataOut.writeBytes(Integer.toBinaryString(bits2));
 			    
 			} 
 			catch (IOException e) 
