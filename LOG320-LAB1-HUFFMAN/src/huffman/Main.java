@@ -13,11 +13,13 @@ public class Main
         System.out.print("Compresser(c) ou Decompresser(d): ");
         String option = scanner.next();
         System.out.print("nom du fichier: ");
-        String fichier = scanner.next();
+        File file = new File(scanner.next());
         
-        if(option.equals('c'))
+        if(true)
         {
-        	System.out.print("compresse");
+        	Compression comp = new Compression();
+        	comp.readFile(file);
+        	comp.Compress(file);
         }
         else
         {

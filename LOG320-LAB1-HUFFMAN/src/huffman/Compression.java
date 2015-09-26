@@ -2,6 +2,7 @@ package huffman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,17 +12,20 @@ import java.util.List;
 import java.util.Map;
 
 public class Compression {
-    
+    private ArrayList<Character> characterList;
     //TODO faire la tête du fichier compresser
+    
+    public Compression(){
+        characterList = new ArrayList<Character>();
+    }
     
     public ArrayList<Character> readFile(File file){
         try{
-            InputStream inputstream = new FileInputStream(file);
-            ArrayList<Character> characterList = new ArrayList<Character>();
+            InputStream inputstream = new FileInputStream(file);            
             int character = -2;
             character = inputstream.read();
             while(character != -1) {
-                int number = FindCharacter(characterList, character);
+              int number = findCharacter(character);
               if(number != -1){
                   characterList.get(number).setOccurence(characterList.get(number).getOccurence()+1);
               }
@@ -30,7 +34,8 @@ public class Compression {
               }
               character = inputstream.read();
             }
-            quickSort(characterList, 0, characterList.size()-1);
+            
+            faireTrie();
             
             return characterList;
         }
@@ -41,60 +46,125 @@ public class Compression {
     }
     
     
-    public void Compress(){
+    public void Compress(File file){
+        Node node = new Node();
+        StringBuffer binarySequence = new StringBuffer("");
+        node = node.createTree(node, characterList);
+        node.CreateBinaryNumbers(node, binarySequence);
+        StringBuffer compressedFileHeader = new StringBuffer();
         
-    }
-    
-    public void ChangeToBinary(Character[] characterArr){
-        
-    }
-    
-    // http://www.algolist.net/Algorithms/Sorting/Quicksort
-    public int partition(ArrayList<Character> characterList, int left, int right)
-    {
-          int i = left, j = right;
-          Character tmp;
-          int pivotIndex = (left + right) / 2; 
-          int pivot = characterList.get(pivotIndex).getOccurence();
-         
-          while (i <= j) {
-                while (characterList.get(i).getOccurence() < pivot)
-                      i++;
-                while (characterList.get(j).getOccurence() > pivot)
-                      j--;
-                if (i <= j) {
-                      tmp = characterList.get(i);
-                      characterList.set(i, characterList.get(j));
-                      characterList.set(i, tmp);
-                      i++;
-                      j--;
+        try{
+            InputStream inputstream = new FileInputStream(file);
+            int character = -2;
+            character = inputstream.read();
+            while(character != -1) {
+                int number = findCharacter(character);
+                if(characterList.get(number).getOccurence() != 0){
+                    compressedFileHeader.append(characterList.get(number).getBinaire());
+                    characterList.get(number).setOccurence(characterList.get(number).getOccurence()-1);
                 }
-          }
-         
-          return i;
+                character = inputstream.read();
+            }
+            System.out.println(compressedFileHeader.toString());
+            FileOutputStream out = new FileOutputStream("C:\\Users\\samso_000\\Desktop\\compress.txt");
+            byte[] data = String.valueOf(compressedFileHeader).getBytes();
+            out.write(data);
+            //File compressedFile = new File(compressedFileHeader.toString());
+            out.close();
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        
     }
-     
-    public void quickSort(ArrayList<Character> characterList, int left, int right) {
-          int index = partition(characterList, left, right);
-          if (left < index - 1)
-                quickSort(characterList, left, index - 1);
-          if (index < right)
-                quickSort(characterList, index, right);
-    }
-    // end of reference
     
-    public int FindCharacter(ArrayList<Character> characterList, int character){
-        for(int i=0; i != characterList.size()-1; ++i){
-            if(characterList.get(i).getCharacterNumber() == character)
-                return i;
+    public int findCharacter(int character){
+        if(characterList.size() != 0){
+            for(int i=0; i != characterList.size(); ++i){
+                if(characterList.get(i).getCharacterNumber() == character)
+                    return i;
+            }
         }
         return -1;
     }
+
+/*************TRIE*************/
     
-    public void ChangeToBinary(ArrayList<Character> characterList){
-        /*  regarder les charactères avec le plus petit nombre d'occurances
-         *  et les mettres ensembles dans un arbre, et additionner le nombre d'occurances
-         *  pour compléter l'arbre
-        */
+    public void faireTrie()
+    {
+        tri_rapide(characterList, 0, characterList.size()-1);
     }
+    
+    public void echangerValeur(ArrayList<Character> T, int val1, int val2)
+    {
+        Character temp = T.get(val1);
+        T.set(val1, T.get(val2));
+        T.set(val2, temp);
+    }
+    
+    // http://laure.gonnord.org/pro/teaching/AlgoProg1112_IMA/trirapide.pdf
+    public int partitionner(ArrayList<Character> T, int premier, int dernier)
+    {
+        int indice2 = dernier, indice1 = premier+1, pivot = premier;
+        
+        while(indice1 < indice2)
+        {
+            if(T.get(indice1).getOccurence() <= T.get(pivot).getOccurence())
+                indice1++;
+            else
+            {
+                if(T.get(indice2).getOccurence() >= T.get(pivot).getOccurence())
+                    indice2--;
+                else
+                {
+                    echangerValeur(T, indice1, indice2);
+                    indice1++;
+                    indice2--;
+                }
+            }
+        }
+        
+        if(indice1 == indice2)
+        {
+            if(T.get(indice1).getOccurence() <= T.get(pivot).getOccurence())
+                indice2++;
+            else
+                indice1--;
+        }
+        else
+        {
+            indice1--;
+            indice2++;
+        }
+        
+        echangerValeur(T, premier, indice1);
+        return indice1;
+    }
+
+    public void tri_rapide(ArrayList<Character> T, int premier, int dernier)
+    {
+        int pivot;
+        
+        if(premier == dernier-1)
+        {
+            if(T.get(premier).getOccurence() > T.get(dernier).getOccurence())
+            {
+                echangerValeur(T, premier, dernier);
+            }
+        }
+        else
+        {
+            if(premier < dernier)
+            {
+                // int pivot = choix_pivot(T, premier, dernier);
+                pivot = partitionner(T, premier, dernier);
+                tri_rapide(T, premier, pivot-1);
+                tri_rapide(T, pivot+1, dernier);
+            }
+        }
+        
+    }
+    // Fin
+    /********************************/
 }

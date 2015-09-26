@@ -3,7 +3,7 @@ package huffman;
 public class Character {
     private int characterNumber;
     private int occurence;
-    private String binaire;
+    private StringBuffer binaire;
     
     public Character(int characterNumber, int occurence){
         this.characterNumber = characterNumber;
@@ -15,7 +15,7 @@ public class Character {
         return occurence;
     }
     
-    public String getBinaire(){
+    public StringBuffer getBinaire(){
         return binaire;
     }
     
@@ -23,8 +23,8 @@ public class Character {
         this.occurence = occurence;
     }
     
-    public void setBinaire(String binaire){
-        this.binaire = binaire;
+    public void setBinaire(StringBuffer binarySequence){
+        this.binaire = binarySequence;
     }
 
     public int getCharacterNumber() {
