@@ -1,21 +1,25 @@
 package huffman;
 
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.stream.Stream;
-
+import java.util.HashMap;
 public class ArbreBinaire 
 {
-	private Noeud tete;
+	private int nbFeuille = 0;
+	private Noeud tete = null;
+	private String nomFichier = "";
+	private ModificationFichier m = null;
+	private DataOutputStream dataOut = null;
+	private HashMap<Character, Noeud> map = null;
 	
-	public ArbreBinaire()
+	public ArbreBinaire(DataOutputStream dataOut, String nomFichier)
 	{
+		this.m = new ModificationFichier(dataOut);
+		this.nomFichier = nomFichier;
 	}	
 	
 	public void creationArbreBinaire(ArrayList<Noeud> T)
@@ -52,60 +56,146 @@ public class ArbreBinaire
 		}
 	}
 	
-	public void codeCaractere(ArrayList<Byte> T, Noeud n, int longueur)
+	public void codeCaractere(ArrayList<Boolean> T, Noeud n, int longueur)
 	{		
 		if(!n.estFeuille())
 		{
-			T.add((byte) 0);
+			T.add(false);
 			this.codeCaractere(T, n.getGauche(), longueur+1);
-			T.add((byte) 1);
+			T.add(true);
 			this.codeCaractere(T, n.getDroite(), longueur+1);
 		}
 		else
 		{
-			Byte[] table = T.toArray(new Byte[T.size()]);
+			Boolean[] table = null;
+			table = new Boolean[T.size()];
+			table = T.toArray(table);
 			n.setCode(table);
+			map.get(n.getCaractere()).setCode(table);
 		}
 	}
 	
-	public void codeArbre(DataOutputStream dataOut, Noeud n)
+	public void ecrireArbre(Noeud n)
 	{
 		if(!n.estFeuille())
 		{
-
-			int bits2 = 1000011;
-			BitSet b = new BitSet(bits2);
-			System.out.println(b);
 			// ecrire 0
 			// a gauche
 			// a droite
 			
-			try 
-			{
-		        dataOut.writeBytes(Integer.toBinaryString(bits2));
-			    
-			} 
-			catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
+			this.ecrireBits(false);
+			this.ecrireArbre(n.getGauche());
+			this.ecrireArbre(n.getDroite());
 			 
 		}
 		else
 		{
 			// ecrire 1
 			// ecrire son code
+			
+			this.ecrireBits(true);
+			this.ecrireCaractere((int)n.getCaractere());
+			
+		}
+	}
+	
+	public void ecrireNbFeuille(int n)
+	{
+		this.ecrireCaractere(n);
+	}
+	
+	public void ecrireBits(boolean bit)
+	{		
+		try 
+		{
+			m.writeBites(bit);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void ecrireCaractere(int caractere)
+	{		
+		try 
+		{
+			m.writeCharactere((byte) caractere);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void ecrireTexte()
+	{		
+		String text;
+		try 
+		{
+			text = new String(Files.readAllBytes(Paths.get(this.nomFichier)), StandardCharsets.UTF_8);
+
+			for(int i=0; i < text.length(); i++)
+			{
+				this.ecrireTableBits(map.get(text.charAt(i)).getCode());
+			}
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void ecrireTableBits(Boolean[] booleans)
+	{		
+		try 
+		{
+			m.writeTableBytes(booleans);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void fermerFichier()
+	{
+		try 
+		{
+			m.close();
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
 		}
 	}
 
-	public Noeud getTete() 
-	{
+	public Noeud getTete() {
 		return tete;
 	}
 
-
-	public void setTete(Noeud tete) 
-	{
+	public void setTete(Noeud tete) {
 		this.tete = tete;
+	}
+
+	public int getNbFeuille() {
+		return nbFeuille;
+	}
+
+	public void setNbFeuille(int nbFeuille) {
+		this.nbFeuille = nbFeuille;
+	}
+
+	public DataOutputStream getDataOut() {
+		return dataOut;
+	}
+
+	public void setDataOut(DataOutputStream dataOut) {
+		this.dataOut = dataOut;
+	}
+	
+	public void setMap(HashMap<Character, Noeud> map)
+	{
+		this.map = map;
 	}
 }

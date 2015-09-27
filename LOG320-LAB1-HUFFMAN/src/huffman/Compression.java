@@ -15,26 +15,49 @@ import java.util.Map.Entry;
 
 public class Compression 
 {
-	private  ArrayList<Noeud> tableFrequence = new ArrayList<Noeud>();
-	private ArbreBinaire arbre = new ArbreBinaire();
+	private int nbFeuille = 0;
+	private String nomFichier = "";
+	private ArbreBinaire arbre = null;
+	private ArrayList<Noeud> tableFrequence = null;
+	private DataOutputStream dataOut = null;
+	private HashMap<Character, Noeud> map = null;
 	
-	public void lireFichier(String fichier)
+	public Compression(String nomfichier)
 	{
-		HashMap<Character, Noeud> map = new HashMap<Character, Noeud>();
+		this.nomFichier = nomfichier;
+		this.tableFrequence = new ArrayList<Noeud>();
+		this.setDataOut("file.txt");
+		this.arbre = new ArbreBinaire(this.dataOut, this.nomFichier);
+	}
+	
+	public void etapeCompression()
+    {
+    	this.lireFichier();
+    	this.faireTrie();
+    	this.creationArbreBinaire();    	
+    	this.ecrireCode();
+    }
+	
+	public void lireFichier()
+	{
+		this.map = new HashMap<Character, Noeud>();
 		
 		try 
 		{
 			int c;
 			Noeud n = null;
-			File f = new File(fichier);
+			File f = new File(this.nomFichier);
 	        FileReader fr = new FileReader(f);
+	        char cle = 'a';
 	        
 	        while((c = fr.read()) != -1)
 	        {
-	        	char cle = (char)c;
+	        	cle = (char)c;
 	        	
 	        	if(!map.containsKey(cle))
+	        	{
 	        		map.put(cle, new Noeud(cle));
+	        	}
 	        	else
 	        	{
 	        		n = map.get(cle);
@@ -63,11 +86,8 @@ public class Compression
 	        n = (Noeud) pair.getValue();
 	        tableFrequence.add(n);
 	    }
-	}
-	
-	public ArrayList<Noeud> getTableFrequence()
-	{
-		return tableFrequence;
+	    
+	    this.nbFeuille = tableFrequence.size();
 	}
 	
 	/*************TRIE*************/
@@ -148,24 +168,41 @@ public class Compression
     }
     // Fin
     /********************************/
-    
-    public void etapeCompression(String fichier)
+	
+	public void creationArbreBinaire()
     {
-    	this.lireFichier(fichier);
-    	this.faireTrie();
-    	arbre.creationArbreBinaire(this.getTableFrequence());
-    	arbre.codeCaractere(new ArrayList<Byte>(), arbre.getTete(), 0);
-    	
-    	DataOutputStream dataOut = null;
-    	
-    	try 
-    	{
-			dataOut = new DataOutputStream(new FileOutputStream("file.txt"));
-			arbre.codeArbre(dataOut, arbre.getTete());
+    	this.arbre.creationArbreBinaire(this.getTableFrequence());
+    }
+    
+    public void ecrireCode()
+    {
+    	arbre.setMap(this.map);
+		arbre.ecrireNbFeuille(this.nbFeuille);
+		arbre.ecrireArbre(arbre.getTete());
+		arbre.codeCaractere(new ArrayList<Boolean>(), arbre.getTete(), 0);
+		arbre.ecrireTexte();
+		arbre.fermerFichier();
+    }
+	
+	public ArrayList<Noeud> getTableFrequence()
+	{
+		return tableFrequence;
+	}
+	
+	public DataOutputStream getDataOut() 
+	{
+		return dataOut;
+	}
+
+	public void setDataOut(String nomFichier) 
+	{
+		try 
+		{
+			this.dataOut = new DataOutputStream(new FileOutputStream(nomFichier));
 		} 
-    	catch (FileNotFoundException e) 
-    	{
+		catch (FileNotFoundException e) 
+		{
 			e.printStackTrace();
 		}
-    }
+	}
 }
