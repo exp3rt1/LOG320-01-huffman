@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class ModificationFichier 
 {
-	private int caractere = 0;
+	private byte caractere = 0;
 	private int nbBits = 0;
 	private String nomFichier = "";
 	private DataOutputStream dataOut = null;
@@ -17,18 +17,18 @@ public class ModificationFichier
 	
 	public void writeBites(boolean bit) throws IOException
 	{
-		this.caractere = this.caractere << 1;
+		this.caractere = (byte) (this.caractere >> 1);
 		
 		if(bit)
 		{
-			this.caractere = this.caractere | 1;
+			this.caractere = (byte) (this.caractere | 1);
 		}
 		
 		this.nbBits++;
 		
 		if(this.nbBits == 8)
 		{
-			this.dataOut.write(this.caractere);
+			this.dataOut.writeByte(this.caractere);
 			this.caractere = 0;
 			this.nbBits = 0;
 		}
@@ -40,22 +40,22 @@ public class ModificationFichier
 		this.dataOut.write(caractere);
 	}
 	
-	public void writeTableBytes(Boolean[] booleans) throws IOException
+	public void writeString(String booleans) throws IOException
 	{
-		for (int i = 0; i < booleans.length; i++) 
+		for (int i = 0; i < booleans.length(); i++) 
 		{
-			this.caractere = this.caractere << 1;
+			this.caractere = (byte) (this.caractere >> 1);
 			
-			if(booleans[i])
+			if(booleans.charAt(i) == '1')
 			{
-				this.caractere = this.caractere | 1;
+				this.caractere = (byte) (this.caractere | 1);
 			}
 
 			this.nbBits++;
 			
 			if(this.nbBits == 8)
 			{
-				this.dataOut.write(this.caractere);
+				this.dataOut.writeByte(this.caractere);
 				this.caractere = 0;
 				this.nbBits = 0;
 			}
@@ -64,13 +64,13 @@ public class ModificationFichier
 	
 	public void close() throws IOException
 	{
-		while(this.nbBits < 8)
+		while(this.nbBits > 0 && this.nbBits < 8)
 		{
-			this.caractere = this.caractere << 1;
+			this.caractere = (byte) (this.caractere >> 1);
 			this.nbBits++;
 		}
 		
-		this.dataOut.write(this.caractere);		
+		this.dataOut.writeByte(this.caractere);		
 		this.dataOut.close();
 	}
 

@@ -27,9 +27,8 @@ public class ArbreBinaire
 		while(T.size() != 1)
 		{
 			Noeud n = new Noeud('\u0000');
-			
-			n.setDroite(T.get(1));
-			n.setGauche(T.get(0));
+			n.setDroite(T.get(0));
+			n.setGauche(T.get(1));
 			T.set(0, n);
 			T.remove(1);
 			n.setFrequenceParent();
@@ -42,7 +41,7 @@ public class ArbreBinaire
 	
 	public void trieParInsertion(ArrayList<Noeud> T, int elementAInserer)
 	{
-		for (int i=1; i < T.size()-1; i++) 
+		for (int i=0; i < T.size(); i++) 
 		{
 			if(T.get(elementAInserer).getFrequence() >= T.get(i).getFrequence())
 			{
@@ -56,22 +55,20 @@ public class ArbreBinaire
 		}
 	}
 	
-	public void codeCaractere(ArrayList<Boolean> T, Noeud n, int longueur)
+	public void codeCaractere(String T, Noeud n)
 	{		
 		if(!n.estFeuille())
 		{
-			T.add(false);
-			this.codeCaractere(T, n.getGauche(), longueur+1);
-			T.add(true);
-			this.codeCaractere(T, n.getDroite(), longueur+1);
+			T += "0";
+			this.codeCaractere(T, n.getGauche());
+			T = T.substring(0,T.length()-1);
+			T += "1";
+			this.codeCaractere(T, n.getDroite());
 		}
 		else
 		{
-			Boolean[] table = null;
-			table = new Boolean[T.size()];
-			table = T.toArray(table);
-			n.setCode(table);
-			map.get(n.getCaractere()).setCode(table);
+			n.setCode(T);
+			map.get(n.getCaractere()).setCode(T);
 		}
 	}
 	
@@ -101,6 +98,7 @@ public class ArbreBinaire
 	
 	public void ecrireNbFeuille(int n)
 	{
+		System.out.print(n);
 		this.ecrireCaractere(n);
 	}
 	
@@ -146,11 +144,11 @@ public class ArbreBinaire
 		}
 	}
 	
-	public void ecrireTableBits(Boolean[] booleans)
+	public void ecrireTableBits(String booleans)
 	{		
 		try 
 		{
-			m.writeTableBytes(booleans);
+			m.writeString(booleans);
 		} 
 		catch (IOException e) 
 		{

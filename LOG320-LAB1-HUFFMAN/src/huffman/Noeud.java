@@ -6,7 +6,7 @@ public class Noeud
 	private int frequence = 1;
 	private Noeud gauche = null;
 	private Noeud droite = null;
-	private Boolean[] code = null;
+	private String code = null;
 	
 	public Noeud(char c)
 	{
@@ -66,12 +66,12 @@ public class Noeud
 		this.frequence = this.getGauche().getFrequence() + this.getDroite().getFrequence();
 	}
 
-	public Boolean[] getCode() 
+	public String getCode() 
 	{
 		return code;
 	}
 
-	public void setCode(Boolean[] table) 
+	public void setCode(String table) 
 	{
 		this.code = table;
 	}

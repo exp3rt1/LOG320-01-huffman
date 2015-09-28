@@ -9,14 +9,14 @@ public class Main
 
     public static void main(String[] args) 
     {
-    	// Scanner scanner = new Scanner(System.in);
-        // System.out.print("Compresser(c) ou Decompresser(d): ");
-        // String option = scanner.next();
+    	Scanner scanner = new Scanner(System.in);
+        System.out.print("Compresser(c) ou Decompresser(d): ");
+        String option = scanner.next();
         //System.out.print("nom du fichier: ");
         String nomfichier = "allo.txt";
         long date1, date2;
        
-        if(true)
+        if(option.equals("c"))
         {
         	// date1 = System.currentTimeMillis();
         	Compression c = new Compression(nomfichier);
@@ -29,7 +29,7 @@ public class Main
         else
         {
         	Decompression d = new Decompression();
-        	Decompression.creationArbre();
+        	d.lireEntete();
         }
     }
 }

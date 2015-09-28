@@ -179,7 +179,7 @@ public class Compression
     	arbre.setMap(this.map);
 		arbre.ecrireNbFeuille(this.nbFeuille);
 		arbre.ecrireArbre(arbre.getTete());
-		arbre.codeCaractere(new ArrayList<Boolean>(), arbre.getTete(), 0);
+		arbre.codeCaractere("", arbre.getTete());
 		arbre.ecrireTexte();
 		arbre.fermerFichier();
     }
