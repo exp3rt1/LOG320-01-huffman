@@ -28,7 +28,7 @@ public class Main
         }
         else
         {
-        	Decompression d = new Decompression();
+        	Decompression d = new Decompression(nomfichier);
         	d.lireEntete();
         }
     }

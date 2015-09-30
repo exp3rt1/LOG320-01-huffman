@@ -37,7 +37,28 @@ public class ModificationFichier
 	
 	public void writeCharactere(byte caractere) throws IOException
 	{
-		this.dataOut.write(caractere);
+		System.out.print(caractere);
+		for (int i = 0; i < 8; i++) 
+		{			
+			if((caractere & 1) == 1)
+			{
+				this.caractere = (byte) ((this.caractere | 128) & 0xFF);
+			}
+			
+			System.out.print((this.caractere) + " ");
+			this.caractere = (byte) ((this.caractere >> 1) );			
+			caractere = (byte) ((caractere >> 1));
+
+			this.nbBits++;
+			
+			if(this.nbBits == 8)
+			{
+				System.out.print(this.nbBits + "  " + (this.caractere) + "\n" );
+				this.dataOut.writeByte(this.caractere);
+				this.caractere = 0;
+				this.nbBits = 0;
+			}
+		}
 	}
 	
 	public void writeString(String booleans) throws IOException

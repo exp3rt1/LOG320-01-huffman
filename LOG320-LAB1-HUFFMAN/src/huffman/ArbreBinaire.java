@@ -43,7 +43,7 @@ public class ArbreBinaire
 	{
 		for (int i=0; i < T.size(); i++) 
 		{
-			if(T.get(elementAInserer).getFrequence() >= T.get(i).getFrequence())
+			if(T.get(elementAInserer).getFrequence() > T.get(i).getFrequence())
 			{
 				Noeud temp = T.get(elementAInserer);
 				T.set(elementAInserer, T.get(i));
@@ -69,6 +69,7 @@ public class ArbreBinaire
 		{
 			n.setCode(T);
 			map.get(n.getCaractere()).setCode(T);
+			System.out.print(n.getCaractere() + " = " + n.getCode() + "\n");
 		}
 	}
 	
@@ -91,14 +92,14 @@ public class ArbreBinaire
 			// ecrire son code
 			
 			this.ecrireBits(true);
-			this.ecrireCaractere((int)n.getCaractere());
+			this.ecrireCaractere((byte)n.getCaractere());
 			
 		}
 	}
 	
 	public void ecrireNbFeuille(int n)
 	{
-		System.out.print(n);
+		//System.out.print(n);
 		this.ecrireCaractere(n);
 	}
 	
