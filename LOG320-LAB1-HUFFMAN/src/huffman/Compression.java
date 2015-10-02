@@ -2,6 +2,7 @@ package huffman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,6 @@ import java.util.Map;
 
 public class Compression {
     private ArrayList<Character> characterList;
-    //TODO faire la tête du fichier compresser
     
     public Compression(){
         characterList = new ArrayList<Character>();
@@ -46,7 +46,7 @@ public class Compression {
     }
     
     
-    public void Compress(File file){
+    public void compress(File file){
         Node node = new Node();
         StringBuffer binarySequence = new StringBuffer("");
         node = node.createTree(node, characterList);
@@ -65,21 +65,74 @@ public class Compression {
                 }
                 character = inputstream.read();
             }
-            System.out.println(compressedFileHeader.toString());
             FileOutputStream out = new FileOutputStream("C:\\Users\\samso_000\\Desktop\\compress.txt");
-            byte[] data = String.valueOf(compressedFileHeader).getBytes();
+            compressedFileHeader.insert(0, createBinaryHeader());
+            byte[] data = getBytes(compressedFileHeader);
             out.write(data);
             //File compressedFile = new File(compressedFileHeader.toString());
             out.close();
             
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        
-        
+        }catch(FileNotFoundException e) {
+            System.out.println(
+                    "Unable to open file '" + 
+                    file + "'");
+            }
+            catch(IOException e) {
+                System.out.println(
+                    "Error reading file '" 
+                    + file + "'");
+            }
     }
     
-    public int findCharacter(int character){
+    public byte[] getBytes(StringBuffer bitString)
+    {
+        int offset = bitString.length() % 8;
+        bitString.append(addZeros(offset));
+        bitString.insert(0, integerToBinary(offset));
+        
+        byte[] data = new byte[bitString.length() / 8];
+        
+        for (int i = 0; i < data.length; i++)
+        {
+            for (int b = 0; b <= 7; b++)
+            {
+                data[i] |= (byte)((bitString.charAt(i * 8 + b) == '1' ? 1 : 0) << (7 - b));
+            }
+        }
+
+        return data;
+    }
+    
+    public StringBuffer createBinaryHeader(){
+        StringBuffer stringBuffer = new StringBuffer();
+        String characterBinary;
+        String binaryLength;
+        for(int i=0; i != characterList.size(); ++i){
+            characterBinary = integerToBinary(characterList.get(i).getCharacterNumber());
+            binaryLength = integerToBinary(characterList.get(i).getBinaire().length());
+            stringBuffer.append(characterBinary+binaryLength+characterList.get(i).getBinaire());
+        }
+        
+        stringBuffer.insert(stringBuffer.length(), "0000000011111111");
+        
+        return stringBuffer;
+    }
+    
+    private String integerToBinary(int number){        
+        String string = Integer.toBinaryString(number & 0xFF);
+        String addedZeros = addZeros(8-string.length()).toString();
+        string = addedZeros+string;
+        return string;
+    }
+    
+    private StringBuffer addZeros(int length){
+        StringBuffer addedZeros = new StringBuffer();
+        for(int i=0; i != length; ++i)
+            addedZeros.append("0");
+        return addedZeros;
+    }
+    
+    private int findCharacter(int character){
         if(characterList.size() != 0){
             for(int i=0; i != characterList.size(); ++i){
                 if(characterList.get(i).getCharacterNumber() == character)

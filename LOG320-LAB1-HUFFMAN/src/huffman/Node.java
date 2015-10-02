@@ -120,10 +120,11 @@ public class Node{
         }
         
         if(node.item != null){
-            node.item.setBinaire(binarySequence);
+            StringBuffer itemBinaire = new StringBuffer(binarySequence);
+            node.item.setBinaire(itemBinaire);
         }
         
         if(binarySequence.length() >0)
-            binarySequence.deleteCharAt(0);
+            binarySequence.deleteCharAt(binarySequence.length()-1);
     }
 }
