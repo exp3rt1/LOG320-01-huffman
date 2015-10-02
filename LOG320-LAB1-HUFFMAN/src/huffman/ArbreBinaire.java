@@ -99,7 +99,6 @@ public class ArbreBinaire
 	
 	public void ecrireNbFeuille(int n)
 	{
-		//System.out.print(n);
 		this.ecrireCaractere(n);
 	}
 	

@@ -178,10 +178,10 @@ public class Compression
     {
     	arbre.setMap(this.map);
 		arbre.ecrireNbFeuille(this.nbFeuille);
-		//arbre.ecrireArbre(arbre.getTete());
-		//arbre.codeCaractere("", arbre.getTete());
-		//arbre.ecrireTexte();
-		//arbre.fermerFichier();
+		arbre.ecrireArbre(arbre.getTete());
+		arbre.codeCaractere("", arbre.getTete());
+		arbre.ecrireTexte();
+		arbre.fermerFichier();
     }
 	
 	public ArrayList<Noeud> getTableFrequence()

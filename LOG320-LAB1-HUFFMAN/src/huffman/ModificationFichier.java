@@ -17,11 +17,9 @@ public class ModificationFichier
 	
 	public void writeBites(boolean bit) throws IOException
 	{
-		this.caractere = (byte) (this.caractere >> 1);
-		
 		if(bit)
 		{
-			this.caractere = (byte) (this.caractere | 1);
+			this.caractere = (byte) (this.caractere | this.pow(2, 7-this.nbBits));
 		}
 		
 		this.nbBits++;
@@ -37,24 +35,18 @@ public class ModificationFichier
 	
 	public void writeCharactere(byte caractere) throws IOException
 	{
-		System.out.print(caractere);
 		for (int i = 0; i < 8; i++) 
-		{			
-			if((caractere & 1) == 1)
+		{
+			if((caractere & this.pow(2, 7-i)) == this.pow(2, 7-i))
 			{
-				this.caractere = (byte) ((this.caractere | 128) & 0xFF);
+				this.caractere = (byte) (this.caractere | this.pow(2, 7-this.nbBits));
 			}
 			
-			System.out.print((this.caractere) + " ");
-			this.caractere = (byte) ((this.caractere >> 1) );			
-			caractere = (byte) ((caractere >> 1));
-
 			this.nbBits++;
 			
 			if(this.nbBits == 8)
 			{
-				System.out.print(this.nbBits + "  " + (this.caractere) + "\n" );
-				this.dataOut.writeByte(this.caractere);
+				this.dataOut.writeByte((this.caractere));
 				this.caractere = 0;
 				this.nbBits = 0;
 			}
@@ -64,12 +56,10 @@ public class ModificationFichier
 	public void writeString(String booleans) throws IOException
 	{
 		for (int i = 0; i < booleans.length(); i++) 
-		{
-			this.caractere = (byte) (this.caractere >> 1);
-			
+		{			
 			if(booleans.charAt(i) == '1')
 			{
-				this.caractere = (byte) (this.caractere | 1);
+				this.caractere = (byte) (this.caractere | this.pow(2, 7-this.nbBits));
 			}
 
 			this.nbBits++;
@@ -85,14 +75,26 @@ public class ModificationFichier
 	
 	public void close() throws IOException
 	{
-		while(this.nbBits > 0 && this.nbBits < 8)
-		{
-			this.caractere = (byte) (this.caractere >> 1);
-			this.nbBits++;
-		}
-		
-		this.dataOut.writeByte(this.caractere);		
+		this.dataOut.writeByte(this.caractere);
 		this.dataOut.close();
+	}
+	
+	public int pow(int base, int exposant)
+	{
+		if(exposant == 0)
+			return 1;
+		else if(exposant == 1)
+			return base;
+		else
+		{
+			int valeur = 2;
+			for(int i=1; i < exposant; i++)
+			{
+				valeur *= base;
+			}
+			
+			return valeur;
+		}
 	}
 
 	public DataOutputStream getDataOut() 
