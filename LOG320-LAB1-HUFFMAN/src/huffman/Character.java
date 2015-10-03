@@ -10,6 +10,11 @@ public class Character {
         this.occurence = occurence;
     }
     
+    public Character(int characterNumber, StringBuffer binaire){
+        this.characterNumber = characterNumber;
+        this.binaire = binaire;
+    }
+    
     
     public int getOccurence(){
         return occurence;
@@ -47,5 +52,14 @@ public class Character {
                 return true;
         }
         return false;
+    }
+    
+    public int compare(Character o){
+        if(this.getBinaire().length() > o.getBinaire().length())
+            return 1;
+        else if(this.getBinaire().length() < o.getBinaire().length())
+            return -1;
+        else
+            return 0;
     }
 }

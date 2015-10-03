@@ -31,7 +31,7 @@ public class Main
         }
         else
         {
-        	Decompression.creationArbre();
+        	//Decompression.creationArbre();
         }
         
         

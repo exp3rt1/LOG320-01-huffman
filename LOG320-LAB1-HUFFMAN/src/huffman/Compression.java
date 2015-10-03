@@ -65,7 +65,7 @@ public class Compression {
                 }
                 character = inputstream.read();
             }
-            FileOutputStream out = new FileOutputStream("C:\\Users\\samso_000\\Desktop\\compress.txt");
+            FileOutputStream out = new FileOutputStream(file.getAbsolutePath().concat(".compress"));
             compressedFileHeader.insert(0, createBinaryHeader());
             byte[] data = getBytes(compressedFileHeader);
             out.write(data);
