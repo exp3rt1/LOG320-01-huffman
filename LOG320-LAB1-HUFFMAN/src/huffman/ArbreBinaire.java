@@ -13,6 +13,7 @@ public class ArbreBinaire
 	private Noeud tete = null;
 	private String nomFichier = "";
 	private ModificationFichier m = null;
+	private String codeArbre = "";
 	private DataOutputStream dataOut = null;
 	private HashMap<Character, Noeud> map = null;
 	
@@ -24,16 +25,24 @@ public class ArbreBinaire
 	
 	public void creationArbreBinaire(ArrayList<Noeud> T)
 	{
-		while(T.size() != 1)
+		this.nbFeuille = T.size();
+		if(T.size() == 1)
 		{
-			Noeud n = new Noeud('\u0000');
-			n.setDroite(T.get(0));
-			n.setGauche(T.get(1));
-			T.set(0, n);
-			T.remove(1);
-			n.setFrequenceParent();
-		
-			trieParInsertion(T, 0);
+			T.get(0).setCode("0");
+		}
+		else
+		{
+			while(T.size() != 1)
+			{
+				Noeud n = new Noeud('\u0000');
+				n.setDroite(T.get(0));
+				n.setGauche(T.get(1));
+				T.set(0, n);
+				T.remove(1);
+				n.setFrequenceParent();
+			
+				trieParInsertion(T, 0);
+			}
 		}
 		
 		this.setTete(T.get(0));
@@ -41,9 +50,9 @@ public class ArbreBinaire
 	
 	public void trieParInsertion(ArrayList<Noeud> T, int elementAInserer)
 	{
-		for (int i=0; i < T.size(); i++) 
+		for (int i=1; i < T.size(); i++) 
 		{
-			if(T.get(elementAInserer).getFrequence() > T.get(i).getFrequence())
+			if(T.get(elementAInserer).getFrequence() >= T.get(i).getFrequence())
 			{
 				Noeud temp = T.get(elementAInserer);
 				T.set(elementAInserer, T.get(i));
@@ -67,9 +76,11 @@ public class ArbreBinaire
 		}
 		else
 		{
-			n.setCode(T);
-			map.get(n.getCaractere()).setCode(T);
-			System.out.print(n.getCaractere() + " = " + n.getCode() + "\n");
+			if(this.nbFeuille != 1)
+			{
+				n.setCode(T);
+				map.get(n.getCaractere()).setCode(T);				
+			}
 		}
 	}
 	
@@ -80,8 +91,7 @@ public class ArbreBinaire
 			// ecrire 0
 			// a gauche
 			// a droite
-			
-			this.ecrireBits(false);
+			this.codeArbre += "0";
 			this.ecrireArbre(n.getGauche());
 			this.ecrireArbre(n.getDroite());
 			 
@@ -90,14 +100,19 @@ public class ArbreBinaire
 		{
 			// ecrire 1
 			// ecrire son code
-			
-			this.ecrireBits(true);
+			this.codeArbre += "1";
+			this.ecrireTableBits(this.codeArbre);
+			this.codeArbre = "";
 			this.ecrireCaractere((byte)n.getCaractere());
-			
 		}
 	}
 	
 	public void ecrireNbFeuille(int n)
+	{
+		this.ecrireCaractere(n);
+	}
+	
+	public void ecrireNbCarac(int n)
 	{
 		this.ecrireCaractere(n);
 	}
@@ -132,7 +147,7 @@ public class ArbreBinaire
 		try 
 		{
 			text = new String(Files.readAllBytes(Paths.get(this.nomFichier)), StandardCharsets.UTF_8);
-
+			
 			for(int i=0; i < text.length(); i++)
 			{
 				this.ecrireTableBits(map.get(text.charAt(i)).getCode());

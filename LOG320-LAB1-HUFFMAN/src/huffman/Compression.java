@@ -2,10 +2,12 @@ package huffman;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,7 +49,7 @@ public class Compression
 			int c;
 			Noeud n = null;
 			File f = new File(this.nomFichier);
-	        FileReader fr = new FileReader(f);
+			InputStreamReader fr = new InputStreamReader(new FileInputStream(f), "UTF-8");
 	        char cle = 'a';
 	        
 	        while((c = fr.read()) != -1)
@@ -178,6 +180,7 @@ public class Compression
     {
     	arbre.setMap(this.map);
 		arbre.ecrireNbFeuille(this.nbFeuille);
+		//arbre.ecrireNbCarac(arbre.getTete().getFrequence());
 		arbre.ecrireArbre(arbre.getTete());
 		arbre.codeCaractere("", arbre.getTete());
 		arbre.ecrireTexte();

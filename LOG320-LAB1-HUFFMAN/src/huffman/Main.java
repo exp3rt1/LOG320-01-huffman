@@ -13,7 +13,7 @@ public class Main
         System.out.print("Compresser(c) ou Decompresser(d): ");
         String option = scanner.next();
         //System.out.print("nom du fichier: ");
-        String nomfichier = "allo.txt";
+        String nomfichier = "fichier.txt";
         long date1, date2;
        
         if(option.equals("c"))
@@ -30,6 +30,8 @@ public class Main
         {
         	Decompression d = new Decompression(nomfichier);
         	d.lireEntete();
+        	d.lireTexte(d.getTete());
+        	d.ecrireTexte();
         }
     }
 }

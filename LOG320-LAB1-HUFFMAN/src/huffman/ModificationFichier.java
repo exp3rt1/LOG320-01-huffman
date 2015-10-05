@@ -23,60 +23,43 @@ public class ModificationFichier
 		}
 		
 		this.nbBits++;
-		
-		if(this.nbBits == 8)
-		{
-			this.dataOut.writeByte(this.caractere);
-			this.caractere = 0;
-			this.nbBits = 0;
-		}
-		
+		this.writeCharacter();		
 	}
 	
 	public void writeCharactere(byte caractere) throws IOException
 	{
-		for (int i = 0; i < 8; i++) 
-		{
-			if((caractere & this.pow(2, 7-i)) == this.pow(2, 7-i))
-			{
-				this.caractere = (byte) (this.caractere | this.pow(2, 7-this.nbBits));
-			}
-			
-			this.nbBits++;
-			
-			if(this.nbBits == 8)
-			{
-				this.dataOut.writeByte((this.caractere));
-				this.caractere = 0;
-				this.nbBits = 0;
-			}
-		}
+		this.caractere = caractere;
+		this.writeCharacter();
 	}
 	
 	public void writeString(String booleans) throws IOException
 	{
 		for (int i = 0; i < booleans.length(); i++) 
-		{			
+		{
+			if(i%8 == 0 && i != 0)
+			{
+				this.writeCharacter();
+			}
+			
 			if(booleans.charAt(i) == '1')
 			{
-				this.caractere = (byte) (this.caractere | this.pow(2, 7-this.nbBits));
-			}
-
-			this.nbBits++;
-			
-			if(this.nbBits == 8)
-			{
-				this.dataOut.writeByte(this.caractere);
-				this.caractere = 0;
-				this.nbBits = 0;
+				this.caractere = (byte) (this.caractere | this.pow(2, 7-i%8));
 			}
 		}
+		
+		this.writeCharacter();
 	}
 	
 	public void close() throws IOException
 	{
-		this.dataOut.writeByte(this.caractere);
+		//this.dataOut.writeByte(this.caractere);
 		this.dataOut.close();
+	}
+	
+	public void writeCharacter() throws IOException
+	{
+		this.dataOut.writeByte(this.caractere);
+		this.caractere = (byte) (this.caractere & 0);
 	}
 	
 	public int pow(int base, int exposant)

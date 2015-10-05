@@ -1,22 +1,26 @@
 package huffman;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 public class Decompression 
 {
 	private DataInputStream dataIn = null;
 	private int nbBits = 0;
-	private int nbBitsLettre = 0;
 	private byte caractere = 0;
 	private byte lettre = 0;
 	private Noeud tete = null;
-	private boolean estLettre = false;
 	private int nombreFeuilles = 0;
+	private int tailleTexte = 0;
+	private int nbLettre = 0;
 	private int nbFeuillesActuelles = 0;
+	private String texte = "";
 	
 	public Decompression(String nomFichier)
 	{
@@ -27,7 +31,7 @@ public class Decompression
 		catch (FileNotFoundException e) 
 		{
 			e.printStackTrace();
-		}
+		} 
 	}
 	
 	public void lireEntete()
@@ -35,10 +39,8 @@ public class Decompression
 		try 
 		{
 			this.nombreFeuilles = this.dataIn.read();
+			//this.tailleTexte = this.dataIn.read();
 			this.caractere = (byte) this.dataIn.read();
-			System.out.print(this.caractere + "\n");
-			this.caractere = (byte) this.dataIn.read();
-			System.out.print(this.caractere);
 			this.lireEnteteCaractere(null);
 		}
 		catch (IOException e) 
@@ -53,58 +55,44 @@ public class Decompression
 		{
 			if(this.nombreFeuilles != this.nbFeuillesActuelles)
 			{
-				if(this.nbBits == 8)
+				Noeud m = new Noeud('\u0000');
+				
+				if(n == null)
+					this.setTete(m);
+				
+				if( (this.caractere & this.pow(2, 7-this.nbBits)) == this.pow(2, 7-this.nbBits) )
 				{
-					this.caractere = (byte) (this.dataIn.read() & 0xFF);
 					this.nbBits = 0;
-				}
-				
-				this.nbBits++;
-				this.caractere = (byte) ((this.caractere << 1)& 0xFF);
-				
-				//System.out.print((this.caractere & 0xFF ) & 128);
-				if( (this.caractere & 1) == 1 )
-				{
-					if(!this.estLettre)
+					this.caractere = (byte) this.dataIn.read();
+					
+					m.setCaractere((char)this.caractere);
+					this.nbFeuillesActuelles++;
+					this.lettre = 0;
+					this.caractere = (byte) this.dataIn.read();
+					
+					if(n != null)
 					{
-						this.estLettre = true;
-					}
-					else
-					{
-						this.lettre = (byte) ((this.lettre << 1)& 0xFF);
-						this.lettre = (byte) ((this.lettre | 1)& 0xFF);
-						this.nbBitsLettre++;
-						
-						if(this.nbBitsLettre == 8)
-						{
-							n.setCaractere((char)this.lettre);
-							this.estLettre = false;
-							this.nbFeuillesActuelles++;
-						}
+						if(n.getGauche() == null)
+							n.setGauche(m);
+						else if(n.getDroite() == null)
+							n.setDroite(m);
 					}
 				}
 				else
 				{
-					// creer un noeud
-					Noeud m = new Noeud('\u0000');
+					this.nbBits++;					
+					this.verifierNbBits();
 					
-					if(n == null)
+					if(n != null)
 					{
-						this.tete = m;
-						n = m;
-					}
-					else
-					{
-						n.setGauche(m);
+						if(n.getGauche() == null)
+							n.setGauche(m);
+						else if(n.getDroite() == null)
+							n.setDroite(m);
 					}
 					
-					//this.lireEnteteCaractere(m);
-					
-					// creer un noeud
-					m = new Noeud('\u0000');
-					n.setDroite(m);
-					
-					//this.lireEnteteCaractere(m);
+					this.lireEnteteCaractere(m);					
+					this.lireEnteteCaractere(m);
 				}
 			}
 		} 
@@ -113,29 +101,113 @@ public class Decompression
 		}
 	}
 	
-	public void lireTexte()
+	public void lireTexte(Noeud n)
 	{
-		System.out.print("insertion texte");
+		try 
+		{
+			if(this.caractere != -1)
+			{
+				if(!n.estFeuille())
+				{
+					if( (this.caractere & this.pow(2, 7-this.nbBits)) == this.pow(2, 7-this.nbBits) )
+					{
+						// droite
+						this.nbBits++;
+						this.verifierNbBits();
+						
+						this.lireTexte(n.getDroite());
+					}
+					else
+					{
+						// gauche
+						this.nbBits++;
+						this.verifierNbBits();						
+						this.lireTexte(n.getGauche());
+					}
+				}
+				else
+				{
+					System.out.print(n.getCaractere());
+					this.texte += n.getCaractere();
+					this.nbLettre++;
+					this.nbBits = 0;
+					
+					this.caractere = (byte) this.dataIn.read();
+					
+					this.lireTexte(this.tete);
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			System.out.print("allo");
+		}
+	}
+	
+	public void afficherArrbre(Noeud n)
+	{
+		if(!n.estFeuille())
+		{
+			this.afficherArrbre(n.getGauche());
+			this.afficherArrbre(n.getDroite());
+		}
+		else
+		{
+			System.out.print("\n" + n.getCaractere() + " = " + (byte) n.getCaractere());
+		}
+	}
+	
+	public void ecrireTexte()
+	{
+		try 
+		{
+			DataOutputStream out = new DataOutputStream(new FileOutputStream("file1.txt"));
+			out.writeBytes(this.texte);
+		} 
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public int pow(int base, int exposant)
+	{
+		if(exposant == 0)
+			return 1;
+		else if(exposant == 1)
+			return base;
+		else
+		{
+			int valeur = 2;
+			for(int i=1; i < exposant; i++)
+			{
+				valeur *= base;
+			}
+			
+			return valeur;
+		}
+	}
+	
+	public void verifierNbBits() throws IOException
+	{
+		if(this.nbBits >= 8)
+		{
+			this.caractere = (byte) this.dataIn.read();
+			this.nbBits = 0;
+		}
+	}
+
+	public Noeud getTete() {
+		return tete;
+	}
+
+	public void setTete(Noeud tete) {
+		this.tete = tete;
 	}
 
 }
 
-/*//lire lettre
-for (int i=0; i < 8; i++) 
-{
-	this.nbBits++;
-	this.caractere = (byte) (this.caractere << 1);					
-	this.lettre = (byte) (this.lettre << 1);
-	
-	if( (this.caractere & 1) == 1 )
-	{
-		this.lettre = (byte) (this.lettre | 1);
-	}
-	
-	if(this.nbBits == 8)
-	{
-		this.caractere = (byte) dataIn.read();
-		this.nbBits = 0;
-	}
-}
-n.setCaractere((char)this.lettre);*/
